@@ -38,14 +38,13 @@ export function createDatabase(pool) {
         const results = [];
         let firstChanges = 1;
         for (let i = 0; i < statements.length; i++) {
-          const item = statements[i];
-          if (typeof item?._execute !== 'function') throw new TypeError('Invalid batch statement');
-          if (item._requirePriorChange && firstChanges === 0) {
+          const s = statements[i];
+          if (s._requirePriorChange && firstChanges === 0) {
             results.push({ success: true, results: [], meta: { changes: 0 } });
             continue;
           }
-          const res = await item._execute(connection);
-          if (i === 0) firstChanges = res.meta?.changes ?? 0;
+          const res = await s._execute(connection);
+          if (i === 0) firstChanges = res.meta.changes;
           results.push(res);
         }
         await connection.commit();
@@ -85,10 +84,12 @@ export function createMySqlDatabase(env = process.env) {
   for (const key of ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']) {
     if (!env[key]) throw new Error(`${key} is required in environment variables (.env)`);
   }
+  const rawHost = env.DB_HOST || '127.0.0.1';
+  const host = rawHost === 'localhost' ? '127.0.0.1' : rawHost;
   const port = Number(env.DB_PORT || 3306);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('DB_PORT must be a valid port');
   return createDatabase(mysql.createPool({
-    host: env.DB_HOST,
+    host,
     port,
     database: env.DB_NAME,
     user: env.DB_USER,
