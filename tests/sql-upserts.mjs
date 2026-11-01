@@ -5,6 +5,9 @@ import {upsertSql} from '../lib/sql-upserts.mjs';
 const sqlite=new DatabaseSync(':memory:');
 sqlite.exec(`CREATE TABLE assistant_preferences(user_id TEXT PRIMARY KEY,memories TEXT,skills TEXT,budget_usd TEXT,updated_at TEXT);
 CREATE TABLE chat_profiles(user_id TEXT PRIMARY KEY,encrypted_key TEXT,model TEXT,updated_at TEXT,voice_name TEXT DEFAULT 'Kore',auto_fallback INTEGER DEFAULT 0);
+CREATE TABLE chat_connections(id TEXT PRIMARY KEY,user_id TEXT,provider TEXT,label TEXT,encrypted_key TEXT,models TEXT,model TEXT,voice_model TEXT,position INTEGER,updated_at TEXT,region TEXT);
+CREATE TABLE assistant_survey_drafts(user_id TEXT,thread_id TEXT,data TEXT,source_text TEXT,generation TEXT,proposal_id TEXT,state TEXT,updated_at TEXT,PRIMARY KEY(user_id,thread_id));
+CREATE TABLE content(id TEXT PRIMARY KEY,kind TEXT,data TEXT,status TEXT,position INTEGER,updated_at TEXT);
 CREATE TABLE surveys(id TEXT PRIMARY KEY,title TEXT,description TEXT,consent TEXT,questions TEXT,status TEXT,version INTEGER,config TEXT,created_at TEXT);`);
 const d1={prepare(sql){return{bind(...params){return{run:async()=>sqlite.prepare(sql).run(...params)}}}}};
 async function write(key,params){await prepareForBackend(d1,...upsertSql[key]).bind(...params).run()}
@@ -18,6 +21,14 @@ await write('chatVoicePreferences',['other','newmodel','newtime',0,'Kore']);
 assert.equal(sqlite.prepare('SELECT model FROM chat_profiles WHERE user_id=?').get('other').model,'newmodel');
 await write('survey',['s','a','d','c','q','draft',1,'cfg','original']);await write('survey',['s','b','d2','c2','q2','published',99,'cfg2','different']);
 assert.deepEqual({...sqlite.prepare('SELECT title,status,version,created_at FROM surveys').get()},{title:'b',status:'published',version:1,created_at:'original'});
+await write('chatConnection',['id','owner','gemini','one','cipher','[]','m','v',1,'t','r']);
+await write('chatConnection',['id','other','other','two','cipher2','[]','m2','v2',2,'t2','r2']);
+assert.deepEqual({...sqlite.prepare('SELECT user_id,provider,label,encrypted_key FROM chat_connections').get()},{user_id:'owner',provider:'gemini',label:'two',encrypted_key:'cipher2'});
+await write('assistantSurveyDraft',['u','t','one','source','{}',null,'draft','t1']);
+await write('assistantSurveyDraft',['u','t','two','source2','{}','p','ready','t2']);
+assert.deepEqual({...sqlite.prepare('SELECT data,source_text,state FROM assistant_survey_drafts').get()},{data:'two',source_text:'source2',state:'ready'});
+await write('content',['id','kind','one','draft',0,'t1']);await write('content',['id','kind2','two','published',1,'t2']);
+assert.deepEqual({...sqlite.prepare('SELECT kind,data,status,position FROM content').get()},{kind:'kind2',data:'two',status:'published',position:1});
 for(const pair of Object.values(upsertSql)){let selected;prepareForBackend({dialect:'mysql',prepare(sql){selected=sql;return {}}},...pair);assert.equal(selected,pair[1])}
 sqlite.close();
 console.log('SQLite upsert insert/update contracts PASS; MySQL selection MOCK PASS.');

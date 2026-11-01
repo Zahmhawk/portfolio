@@ -151,7 +151,7 @@ async function makeSession(r:Request,env:Env,user:any,redirect='/',notice?:Login
 
 async function body(r:Request){if(!r.headers.get('content-type')?.startsWith('application/json'))throw Error('Use a JSON request');const raw=await r.text();if(raw.length>5000)throw Error('Request is too large');return JSON.parse(raw)}
 
-async function rate(env:Env,r:Request,label:string,max=10){const key=hashToken((env.CLIENT_IP||r.headers.get('cf-connecting-ip')||'local')+'|'+label),now=Date.now();await prepareLoginAttempt(env.DB).bind(key,now,now-900000,now-900000).run();const row=await prepareLoginAttemptCount(env.DB).bind(key).first<any>();return row.count<=max}
+async function rate(env:Env,r:Request,label:string,max=10){const key=hashToken((env.CLIENT_IP||r.headers.get('cf-connecting-ip')||'local')+'|'+label),now=Date.now();await prepareLoginAttempt(env.DB).bind(key,now,now-900000,now-900000).run();const row=await prepareLoginAttemptCount(env.DB).bind(key).first();return row.count<=max}
 
 type LoginNotice = 'welcome' | 'signin';
 
