@@ -1,0 +1,18 @@
+AUTHENTICATION UPDATE 29.3 — VERIFICATION
+
+21 focused authentication/cryptographic checks passed. Email and Apple external
+transports were explicitly mocked. Verified password signup, verification token
+single-use, OTP reset, companion link invalidation, revoked sessions, Apple RSA
+signature, audience, issuer, expiry, nonce, verified email and tamper rejection.
+
+13 actual localhost HTTP checks passed: neutral anonymous greeting, admin login
+redirects, owner login, viewer privilege rejection, existing password persistence,
+missing-provider failures, no unverified signup bypass, OTP and verification UI.
+
+TypeScript and production npm run build are checked separately before packaging.
+No actual Google/Apple end-to-end sign-in or real inbox delivery was tested.
+Those require owner provider credentials and, for Apple, a registered HTTPS domain.
+No interactive browser/mobile QA or Windows test is claimed in this update.
+
+No live online deployment was performed. Earlier version test counts are not
+represented as having been rerun against this changed signup policy.

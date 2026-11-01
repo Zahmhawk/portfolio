@@ -1,0 +1,23 @@
+import {admin,db,json} from '../../../../lib/server';
+export async function GET(r:Request){
+  if(!await admin())return json({error:'Owner access required'},403);
+  const isMysql=(db() as any).dialect==='mysql';
+  const p=new URL(r.url).searchParams,limit=50,offset=Math.min(100000,Math.max(0,Number(p.get('offset'))||0));
+  const where=['(a.expires_at IS NULL OR a.expires_at>?)'],values:any[]=[new Date().toISOString()];
+  const dayExpr=isMysql?"DATE_FORMAT(DATE_ADD(STR_TO_DATE(SUBSTRING(a.created_at,1,19),'%Y-%m-%dT%H:%i:%s'), INTERVAL 5 HOUR),'%Y-%m-%d')":"date(a.created_at,'+5 hours')";
+  const audienceExpr=isMysql?"JSON_UNQUOTE(JSON_EXTRACT(s.config,'$.audience'))=?":"json_extract(s.config,'$.audience')=?";
+  for(const [key,op] of [['from','>='],['to','<=']]){
+    const v=p.get(key);
+    if(v&&/^\d{4}-\d{2}-\d{2}$/.test(v)){where.push(dayExpr+op+'?');values.push(v)}
+  }
+  if(p.get('survey')){where.push('a.survey_id=?');values.push(p.get('survey'))}
+  if(p.get('category')){where.push(audienceExpr);values.push(p.get('category'))}
+  const term=(p.get('search')||'').trim().slice(0,150);
+  if(term){where.push('(a.participant LIKE ? OR s.title LIKE ?)');values.push('%'+term+'%','%'+term+'%')}
+  const sql=' FROM answers a JOIN surveys s ON s.id=a.survey_id WHERE '+where.join(' AND ');
+  const [rows,count]=await Promise.all([
+    db().prepare('SELECT a.id,a.survey_id,a.version,a.participant,a.created_at,a.review,s.title,s.config'+sql+' ORDER BY a.created_at DESC,a.id DESC LIMIT ? OFFSET ?').bind(...values,limit,offset).all<any>(),
+    db().prepare('SELECT count(*) AS n'+sql).bind(...values).first<any>()
+  ]);
+  return json({items:rows.results.map(a=>({...a,participant:JSON.parse(a.participant||'{}'),review:JSON.parse(a.review||'{}'),config:JSON.parse(a.config||'{}')})),total:count.n,offset,limit,timezone:'Asia/Karachi'});
+}

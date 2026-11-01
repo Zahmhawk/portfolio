@@ -1,0 +1,3 @@
+Geographical data © GeoNames contributors. CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Source: https://download.geonames.org/export/dump/
+Country/state/district data from countryInfo, admin1CodesASCII, admin2Codes. Worldwide cities500 and Pakistan populated places from PK.zip. Coverage and administrative assignments may be incomplete. No guessed parent districts. Generated 2026-10-17

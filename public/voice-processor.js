@@ -1,0 +1,3 @@
+// Microphone PCM downsampling to 16 kHz, 20 ms packets. No browser speech synthesis.
+class VoicePCM extends AudioWorkletProcessor{constructor(){super();this.phase=0;this.sum=0;this.count=0;this.samples=[]}process(inputs){const input=inputs[0]?.[0];if(!input)return true;for(const value of input){this.sum+=value;this.count++;this.phase+=16000;if(this.phase>=sampleRate){this.phase-=sampleRate;const v=Math.max(-1,Math.min(1,this.sum/this.count));this.samples.push(Math.round(v*(v<0?32768:32767)));this.sum=0;this.count=0;if(this.samples.length===320){const data=new Int16Array(this.samples);this.port.postMessage(data.buffer,[data.buffer]);this.samples=[]}}}return true}}
+registerProcessor('voice-pcm',VoicePCM);

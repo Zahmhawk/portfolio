@@ -1,0 +1,14 @@
+﻿import assert from 'node:assert/strict';
+import {resolveNodeIdentity} from '../lib/node-identity.mjs';
+import {hashToken} from '../lib/password-crypto.mjs';
+const raw='a'.repeat(43), expiry='2030-01-01T00:00:00.000Z';
+const db={prepare(){return {bind(hash,now){return {async first(){return hash===hashToken(raw)&&now<expiry?{user_id:'account',email:'user@example.test',name:'Name',role:'viewer'}:null}}}}}};
+const base={'oai-authenticated-user-id':'attacker','oai-authenticated-user-email':'attacker@example.test','oai-authenticated-user-extra':'injected'};
+let result=await resolveNodeIdentity(new Request('https://example.test/',{headers:base}),db,new Date('2029-01-01'));
+assert.equal(result.user,null); assert.equal(result.request.headers.get('oai-authenticated-user-id'),null); assert.equal(result.request.headers.get('oai-authenticated-user-extra'),null);
+result=await resolveNodeIdentity(new Request('https://example.test/',{headers:{...base,cookie:`portfolio_session=${raw}`}}),db,new Date('2029-01-01'));
+assert.equal(result.request.headers.get('oai-authenticated-user-id'),'account'); assert.equal(result.request.headers.get('oai-authenticated-user-email'),'user@example.test'); assert.equal(result.request.headers.get('oai-authenticated-user-extra'),null);
+result=await resolveNodeIdentity(new Request('https://example.test/',{headers:{cookie:`portfolio_session=${raw}`}}),db,new Date('2031-01-01')); assert.equal(result.user,null);
+result=await resolveNodeIdentity(new Request('https://example.test/',{headers:{cookie:`portfolio_session=${raw}; portfolio_session=${raw}`}}),db,new Date('2029-01-01')); assert.equal(result.user,null);
+result=await resolveNodeIdentity(new Request('https://example.test/',{headers:{cookie:'portfolio_session=invalid'}}),db,new Date('2029-01-01')); assert.equal(result.user,null);
+console.log('Identity stripping and valid/invalid/expired session: MOCK PASS; entrypoint integration is not implemented.');

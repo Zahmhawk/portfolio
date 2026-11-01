@@ -1,0 +1,3 @@
+// Treat provider credentials as opaque strings: newer Google auth keys contain dots.
+// Remove common copy/paste wrappers, but never log or return the credential.
+export function normalizeGeminiKey(raw:unknown){if(typeof raw!=='string')throw Error('Paste your Gemini API key from Google AI Studio.');let value=raw.replace(/[\u200B-\u200D\u2060\uFEFF]/g,'').trim();for(let i=0;i<2;i++){if(value.length>1&&['"',"'",'`'].includes(value[0])&&value.at(-1)===value[0])value=value.slice(1,-1).trim()}if(value.length<20||value.length>4096||!/^[\x21-\x7e]+$/.test(value))throw Error('Paste only the complete Gemini API key, without spaces or a code snippet.');return value}

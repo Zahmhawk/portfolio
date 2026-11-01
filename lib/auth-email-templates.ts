@@ -1,0 +1,15 @@
+﻿const escapeHTML=(value:string)=>value.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!));
+
+export function authEmailCard(title:string,body:string,eyebrow='ACCOUNT SECURITY'){
+  return `<!doctype html><html lang="en"><head><meta name="viewport" content="width=device-width,initial-scale=1"/></head><body style="margin:0;padding:32px 12px;background:#f2f5f3;font-family:Arial,sans-serif;color:#183c39"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center"><table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border:1px solid #dfe8e2;border-radius:24px;overflow:hidden"><tr><td style="height:6px;background:#286457"></td></tr><tr><td style="padding:32px"><p style="margin:0 0 18px;font-size:11px;font-weight:700;letter-spacing:2px;color:#527c6b">${escapeHTML(eyebrow)}</p><h1 style="margin:0 0 20px;font-size:27px;line-height:1.3;color:#183c39">${escapeHTML(title)}</h1><div style="font-size:15px;line-height:1.8;color:#53685e">${body}</div><p style="margin:28px 0 0;padding-top:20px;border-top:1px solid #e5ece7;font-size:12px;color:#728178">Keep your account secure. Never share your password or verification code.</p></td></tr></table><p style="font-size:11px;color:#728178">This is an automated account notification. Please do not reply.</p></td></tr></table></body></html>`;
+}
+
+export function recoveryEmailHTML(subject:string,content:string){
+  const otp=content.match(/Your reset code: (\d{6})/i)?.[1];
+  const urls=content.match(/https?:\/\/[^\s<>]+/g)||[];
+  const link=urls.find(url=>url.includes('token='))||urls[0];
+  const reset=Boolean(otp);
+  const button=link?`<p style="margin:26px 0"><a href="${escapeHTML(link)}" style="display:inline-block;padding:13px 24px;border-radius:12px;background:#286457;color:#ffffff;text-decoration:none;font-weight:700">${reset?'Reset password':'Verify email address'}</a></p><p style="font-size:12px;overflow-wrap:anywhere">If the button does not open, copy this link:<br><a href="${escapeHTML(link)}" style="color:#286457;word-break:break-all">${escapeHTML(link)}</a></p>`:'';
+  const body=reset?`<p>We received a request to reset your password. Enter this one-time code on the reset password page:</p><div style="padding:20px 12px;text-align:center;background:#eef6f1;border:1px solid #d5e8dc;border-radius:16px"><span style="font-size:34px;font-weight:700;letter-spacing:8px;color:#183c39">${otp}</span><p style="margin:8px 0 0;font-size:12px">Code expires in 10 minutes</p></div><p>You can also use the single-use link below. The link expires in 30 minutes.</p>${button}<p style="font-size:13px">If you did not request this, you can ignore this email. Your password has not changed.</p>`:`<p>Welcome! Please confirm your email address to finish setting up your account.</p>${button}<p style="font-size:13px">This verification link expires in 30 minutes. If you did not create an account, you can ignore this email.</p>`;
+  return authEmailCard(subject,body,reset?'PASSWORD RECOVERY':'WELCOME ABOARD');
+}

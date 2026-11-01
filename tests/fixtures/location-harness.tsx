@@ -1,0 +1,3 @@
+import React,{useEffect,useRef} from 'react';import {createRoot} from 'react-dom/client';import LocationFields from '../../app/location-fields';
+function Test(){const ref=useRef<HTMLDialogElement>(null);useEffect(()=>{ref.current?.showModal()},[]);return <dialog ref={ref}><form onSubmit={async e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));await fetch('/saved',{method:'POST',body:JSON.stringify(data)})}}><LocationFields required initial={(window as any).initial||{}}/><button type="submit">Save</button></form></dialog>}
+createRoot(document.getElementById('root')!).render(<Test/>);

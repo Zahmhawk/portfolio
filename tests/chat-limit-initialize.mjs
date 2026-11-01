@@ -1,0 +1,14 @@
+﻿import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {prepareChatLimitInitialization} from '../lib/chat-limit-initialize.mjs';
+const sqlite=new DatabaseSync(':memory:');
+sqlite.exec('CREATE TABLE chat_limits(user_id TEXT PRIMARY KEY,window_start INTEGER NOT NULL,count INTEGER NOT NULL,busy_until INTEGER NOT NULL)');
+const db={prepare(sql){return {bind(...args){return {async run(){return sqlite.prepare(sql).run(...args)}}}}}};
+await prepareChatLimitInitialization(db).bind('user',100).run();
+sqlite.prepare('UPDATE chat_limits SET count=7,busy_until=250 WHERE user_id=?').run('user');
+await prepareChatLimitInitialization(db).bind('user',200).run();
+assert.deepEqual({...sqlite.prepare('SELECT window_start,count,busy_until FROM chat_limits').get()},{window_start:100,count:7,busy_until:250});
+let selected;prepareChatLimitInitialization({dialect:'mysql',prepare(sql){selected=sql;return {}}});
+assert.match(selected,/ON DUPLICATE KEY UPDATE user_id=user_id/);
+sqlite.close();
+console.log('Chat quota initialization duplicate preservation: SQLite PASS; MySQL SQL selection MOCK PASS.');
