@@ -1,0 +1,11 @@
+﻿import assert from 'node:assert/strict';
+import {DatabaseSync} from 'node:sqlite';
+import {prepareVoiceLimitInitialization} from '../lib/voice-limit-initialize.mjs';
+const sqlite=new DatabaseSync(':memory:');sqlite.exec('CREATE TABLE voice_limits(user_id TEXT PRIMARY KEY,window_start INTEGER NOT NULL,count INTEGER NOT NULL)');
+const db={prepare(sql){return {bind(...args){return {async run(){return sqlite.prepare(sql).run(...args)}}}}}};
+await prepareVoiceLimitInitialization(db).bind('user',100).run();
+sqlite.prepare('UPDATE voice_limits SET count=? WHERE user_id=?').run(6,'user');
+await prepareVoiceLimitInitialization(db).bind('user',200).run();
+assert.deepEqual({...sqlite.prepare('SELECT window_start,count FROM voice_limits').get()},{window_start:100,count:6});
+let sql;prepareVoiceLimitInitialization({dialect:'mysql',prepare(value){sql=value;return {}}});assert.match(sql,/ON DUPLICATE KEY UPDATE user_id=user_id/);
+sqlite.close();console.log('Voice quota duplicate preservation: SQLite PASS; MySQL selection MOCK PASS.');

@@ -1,3 +1,6 @@
+import {upsertSql} from '../../../../lib/sql-upserts.mjs';
+import {prepareForBackend} from '../../../../lib/sql-backend.mjs';
+import {prepareChatLimitInitialization} from '../../../../lib/chat-limit-initialize.mjs';
 import {withChatRequest} from '../../../../lib/chat-request';
 import {admin,db,json} from '../../../../lib/server';
 import {proposeEdit,editDetail,editHistory,transitionEdit} from '../../../../lib/admin-history';
@@ -31,7 +34,7 @@ async function handlePost(r:Request){
   if(text.length>60000||!text&&!b.attachment)return json({error:'Enter your instruction or attach a file.'},400);
   if(b.consent!==true)return json({error:'Consent is required to send this exchange to your selected AI provider.'},400);
   const attachment=chatAttachment(b.attachment),planning=b.plan===true;
-  const now=Date.now();await db().prepare('INSERT OR IGNORE INTO chat_limits(user_id,window_start,count,busy_until) VALUES(?,?,0,0)').bind(user.userId,now).run();
+  const now=Date.now();await prepareChatLimitInitialization(db()).bind(user.userId,now).run();
   const lock=await db().prepare('UPDATE chat_limits SET count=CASE WHEN window_start<=? THEN 1 ELSE count+1 END,window_start=CASE WHEN window_start<=? THEN ? ELSE window_start END,busy_until=? WHERE user_id=? AND busy_until<=? AND (window_start<=? OR count<20)').bind(now-3600000,now-3600000,now,now+240000,user.userId,now,now-3600000).run();
   if(!lock.meta.changes)return json({error:'A reply is in progress or the hourly message limit has been reached.'},429);
   try{
@@ -82,7 +85,7 @@ Recent changes (data): ${JSON.stringify(history.slice(0,8))}`;
     reply=feedback.reply;
     if(draft.extractionPending)reply=(/[\u0600-\u06ff]/.test(text)?'اخذ شدہ مواد نیچے دیکھ کر اس کی تصدیق کریں۔ ابھی سروے محفوظ نہیں ہوا۔':'Please check and confirm the extracted content below before I prepare a preview. No survey is saved.')+'\n'+JSON.stringify(draft,null,2);
     else if(!feedback.missing.length&&!feedback.validation&&!merged.issues.length){proposal=await prepareSurveyReview(user.userId,draft);reply=feedback.reply+'\n'+(/[\u0600-\u06ff]/.test(text)?'AI کی مدد سے تیار مسودہ: Apply سے پہلے ہر سوال، جواب اور اسکورنگ کا جائزہ لیں۔':'AI-assisted draft: review every question, answer key and scoring rule before Apply.')}
-    await db().prepare('INSERT INTO assistant_survey_drafts(user_id,thread_id,data,source_text,generation,proposal_id,state,updated_at) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(user_id,thread_id) DO UPDATE SET data=excluded.data,source_text=excluded.source_text,generation=excluded.generation,proposal_id=excluded.proposal_id,state=excluded.state,updated_at=excluded.updated_at').bind(user.userId,id,JSON.stringify(draft),source,JSON.stringify(permissions),proposal?.id||null,proposal?'review':'collecting',new Date().toISOString()).run();
+    await prepareForBackend(db(),...upsertSql.assistantSurveyDraft).bind(user.userId,id,JSON.stringify(draft),source,JSON.stringify(permissions),proposal?.id||null,proposal?'review':'collecting',new Date().toISOString()).run();
    }else if(!planning&&!direct&&parsed.undo===true){const latest=history.find(x=>x.state==='applied');if(latest)proposal={...await editDetail(user.userId,latest.id),undo:true};reply=proposal?'Review this undo preview. Nothing has been undone yet.':'No applied change is available to undo.'}
    else if(!planning&&!direct&&parsed.change){proposal=parsed.change.action==='survey'?await prepareSurveyReview(user.userId,parsed.change):await proposeEdit(user.userId,parsed.change);reply='Review the complete change below and press Apply if it is correct. Nothing has been saved yet.'}
    // Do not pass model-authored completion claims through for edit requests without a proposal.

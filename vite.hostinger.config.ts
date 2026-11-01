@@ -18,6 +18,6 @@ export default defineConfig({
       throw new Error('Hostinger build disabled: Node authentication and database migration are not yet complete.');
     } },
     vinext(),
-    nitro(),
+    nitro({ handlers: [{ route: '/**', middleware: true, handler: fileURLToPath(new URL('./lib/node-auth-nitro.ts', import.meta.url)) }] }),
   ],
 });

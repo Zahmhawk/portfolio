@@ -122,13 +122,14 @@ import {authEmailCard,recoveryEmailHTML} from './auth-email-templates';
 
 
 import {randomInt} from 'node:crypto';
+import {prepareLoginAttempt,prepareLoginAttemptCount} from './login-attempt-sql.mjs';
 import {consumeLoginToken} from './consume-login-token.mjs';
 
 import {appleReady,appleIdentity} from './apple-auth';
 
 import {hashPassword,verifyPassword,hashToken,randomToken} from './password-crypto.mjs';
 
-type Env={DB:D1Database;RESEND_API_KEY?:string;AUTH_FROM_EMAIL?:string;GOOGLE_CLIENT_ID?:string;GOOGLE_CLIENT_SECRET?:string;APPLE_CLIENT_ID?:string;APPLE_TEAM_ID?:string;APPLE_KEY_ID?:string;APPLE_PRIVATE_KEY?:string;APPLE_REDIRECT_URI?:string};
+type Env={DB:D1Database;CLIENT_IP?:string;RESEND_API_KEY?:string;AUTH_FROM_EMAIL?:string;GOOGLE_CLIENT_ID?:string;GOOGLE_CLIENT_SECRET?:string;APPLE_CLIENT_ID?:string;APPLE_TEAM_ID?:string;APPLE_KEY_ID?:string;APPLE_PRIVATE_KEY?:string;APPLE_REDIRECT_URI?:string};
 
 const cookieName='portfolio_session',duration=86400000;
 
@@ -150,7 +151,7 @@ async function makeSession(r:Request,env:Env,user:any,redirect='/',notice?:Login
 
 async function body(r:Request){if(!r.headers.get('content-type')?.startsWith('application/json'))throw Error('Use a JSON request');const raw=await r.text();if(raw.length>5000)throw Error('Request is too large');return JSON.parse(raw)}
 
-async function rate(env:Env,r:Request,label:string,max=10){const key=hashToken((r.headers.get('cf-connecting-ip')||'local')+'|'+label),now=Date.now();await env.DB.prepare('INSERT INTO login_attempts(key,started_at,count) VALUES(?,?,1) ON CONFLICT(key) DO UPDATE SET count=CASE WHEN started_at<? THEN 1 ELSE count+1 END,started_at=CASE WHEN started_at<? THEN excluded.started_at ELSE started_at END').bind(key,now,now-900000,now-900000).run();const row=await env.DB.prepare('SELECT count FROM login_attempts WHERE key=?').bind(key).first<any>();return row.count<=max}
+async function rate(env:Env,r:Request,label:string,max=10){const key=hashToken((env.CLIENT_IP||r.headers.get('cf-connecting-ip')||'local')+'|'+label),now=Date.now();await prepareLoginAttempt(env.DB).bind(key,now,now-900000,now-900000).run();const row=await prepareLoginAttemptCount(env.DB).bind(key).first<any>();return row.count<=max}
 
 type LoginNotice = 'welcome' | 'signin';
 

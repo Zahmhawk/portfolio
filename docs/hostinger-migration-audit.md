@@ -75,3 +75,11 @@ Three more SQL pairs are now explicit in `lib/sql-upserts.mjs`: assistant prefer
 ## Runtime settings boundary
 
 Direct Cloudflare imports for chat encryption and owner bootstrap settings were moved behind `lib/runtime-settings.ts`, with a separate Hostinger alias to `lib/runtime-settings-node.mjs`. The Node provider reads the existing `CHAT_ENCRYPTION_KEY` value from the environment without generating it; a synthetic roundtrip test passed, but existing encrypted credentials were not tested. The default Cloudflare build still necessarily contains `cloudflare:workers` and `dist/standalone/server.js` remains unsuitable for ordinary Node. The Hostinger configuration is still intentionally blocked; database SQL, Node authentication, storage integration and real MySQL checks remain incomplete. No Hostinger deployment was performed.
+
+## Chat quota initialization
+
+`lib/chat-limit-initialize.mjs` supplies explicit D1/MySQL statements for four chat-limit initialization sites. SQLite duplicate-preservation and TypeScript checks passed; MySQL execution and concurrency remain untested. The Hostinger build guard remains in place. `npm run build:hostinger` exited 1 with the intended authentication/database migration guard; no Node output was generated and no Hostinger configuration was changed.
+
+## Voice and profile SQL pairs
+
+Voice quota initialization, voice preference upsert and chat profile initialization now have individually authored D1/MySQL query pairs. SQLite insert/update and duplicate-preservation tests pass; MySQL selection tests are mocks and do not prove real database behavior. TypeScript and the existing Cloudflare build passed. The Hostinger build was checked with the guard still active and exited with the intentional authentication/database error. Node authentication and the remaining SQL are not complete.

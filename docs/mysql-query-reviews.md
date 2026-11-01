@@ -16,3 +16,11 @@ See `mysql-sql-inventory.md` for the automatically extracted current `prepare()`
 9. **Survey upsert** — draft `surveys.id` is the sole primary key. Both variants update title, description, consent, questions, status and config; version and created timestamp remain unchanged on conflict. SQLite insert/update passes; MySQL variant and surrounding response/authorization checks require real integration testing.
 
 The three MySQL variants use `VALUES(column)` syntax supported by MySQL 8 but deprecated by MySQL. Actual server version, strict mode, unique-index definitions and collision behavior must be verified on staging before the guard is removed.
+
+10. **Chat quota initialization** — four active callers previously used `INSERT OR IGNORE` for `chat_limits`. The draft schema has only `user_id` as a unique/primary key. D1 retains the original statement; the MySQL pair uses `ON DUPLICATE KEY UPDATE user_id=user_id`, with no caller relying on affected-row counts. A SQLite test confirms a duplicate preserves the existing window, count and busy lock. MySQL statement selection is mock-tested only; real MySQL duplicate and concurrent quota behavior remain unverified.
+
+11. **Voice quota initialization** — `voice_limits.user_id` is the sole draft primary key. D1 uses `INSERT OR IGNORE`; the MySQL pair handles a duplicate with a no-op update. The caller does not inspect the initialization affected-row count. SQLite duplicate-preservation passed; MySQL selection was mock-tested only.
+12. **Voice preferences upsert** — `chat_profiles.user_id` is the sole draft primary key. The conflict update changes only fallback and voice name; encrypted key, model and timestamp remain unchanged. SQLite insert/update and field preservation passed; MySQL selection was mock-tested only.
+13. **Chat profile initialization** — `chat_profiles.user_id` is the sole draft primary key. D1 uses `INSERT OR IGNORE`; the MySQL pair handles a duplicate with a no-op update without relying on affected-row counts. SQLite duplicate-preservation passed; MySQL selection was mock-tested only.
+
+These MySQL statements, schema constraints and concurrent behavior remain unverified against a real MySQL server.

@@ -1,0 +1,5 @@
+﻿import assert from 'node:assert/strict';import {DatabaseSync} from 'node:sqlite';import {prepareLoginAttempt} from '../lib/login-attempt-sql.mjs';
+const db=new DatabaseSync(':memory:');db.exec('CREATE TABLE login_attempts(key TEXT PRIMARY KEY,started_at INTEGER NOT NULL,count INTEGER NOT NULL)');const adapter={prepare(sql){return{bind(...args){return{async run(){return db.prepare(sql).run(...args)}}}}}};
+await prepareLoginAttempt(adapter).bind('k',100,0,0).run();await prepareLoginAttempt(adapter).bind('k',200,0,0).run();assert.deepEqual({...db.prepare('SELECT started_at,count FROM login_attempts').get()},{started_at:100,count:2});
+await prepareLoginAttempt(adapter).bind('k',1000,500,500).run();assert.deepEqual({...db.prepare('SELECT started_at,count FROM login_attempts').get()},{started_at:1000,count:1});
+let sql;prepareLoginAttempt({dialect:'mysql',prepare(q){sql=q;return {}}});assert.match(sql,/`key`/);assert.match(sql,/ON DUPLICATE KEY UPDATE/);db.close();console.log('Login rate-limit upsert: SQLite window PASS; MySQL selection MOCK PASS.');
