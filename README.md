@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Portfolio localhost 29.3
 
 Requires Node.js 24+. Run `npm install` and `npm run dev`.
@@ -15,3 +16,8 @@ an HTTPS domain and cannot work directly on localhost.
 
 No external provider sign-in or inbox delivery is claimed as tested. This is a
 local derivative; it does not replace or deploy the online Sites project.
+=======
+# portfolio
+This is my personal portfolio website 
+>>>>>>> 69d0f42d65bef81d8b325b7d9be89442c7082c7d
+
