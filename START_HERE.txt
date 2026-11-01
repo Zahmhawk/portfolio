@@ -1,0 +1,41 @@
+PORTFOLIO LOCALHOST — AUTHENTICATION UPDATE 29.3
+
+Node.js 24+ required. Run npm install, then npm run dev.
+Open http://localhost:5173. Admin: http://localhost:5173/admin.
+Fresh installation only: NIAZIS11 / 12345678. Change this password before access.
+Existing passwords and data are preserved; startup never resets a changed password.
+A visitor account is never an administrator. If already signed in as a visitor,
+/admin now directs you to administrator sign-in. Use your current administrator
+password, not a visitor password. Do not delete your database to regain access.
+
+REAL PROVIDERS REQUIRE YOUR REGISTRATION
+Copy the optional fields from .dev.vars.example into your private .dev.vars.
+Never share these secrets in chat or include .dev.vars in a shared ZIP.
+
+GOOGLE: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET from your Google Cloud web
+OAuth client. Register http://localhost:5173/auth/google/callback exactly for
+local use. Configure consent screen/test users as required by Google.
+
+APPLE: APPLE_CLIENT_ID (Services ID), APPLE_TEAM_ID, APPLE_KEY_ID,
+APPLE_PRIVATE_KEY (PKCS8 signing key; escaped newlines accepted),
+APPLE_REDIRECT_URI. Configure an enabled primary App ID, Services ID, domain,
+return URL and signing key in your Apple Developer account.
+Apple DOES NOT support localhost callbacks. Use your registered HTTPS domain;
+that server must run this source and have the same private provider settings.
+Its callback path is /auth/apple/callback. Apple is disabled until configured.
+
+EMAIL: RESEND_API_KEY and AUTH_FROM_EMAIL using a verified sender/domain.
+Restart npm run dev after changing private settings.
+New email signups now REQUIRE actual verification email delivery configuration.
+Use /verify-email to resend a verification message if the first attempt failed.
+No unverified signup bypass is offered. Forgot password sends a six-digit code
+(valid 10 minutes) and a single-use link (30 minutes). Either resets the password
+and invalidates both alternatives and all previous sessions. No password is emailed.
+If delivery fails, no success message is claimed. Existing password accounts
+remain available; the first-use local administrator can configure recovery email.
+
+This package implements provider flows but cannot supply your provider credentials.
+No real Google/Apple login or external email delivery was tested without them.
+Tests use explicitly mocked transport for cryptographic and recovery verification.
+A live end-to-end sign-in and inbox test is still required after configuration.
+The online chatgpt.site deployment has NOT been changed by this local ZIP.

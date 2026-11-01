@@ -1,0 +1,97 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1792173412209,
+      "tag": "0000_whole_silver_centurion",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1792212926196,
+      "tag": "0001_petite_shriek",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1792214603381,
+      "tag": "0002_flashy_cerise",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1792229563502,
+      "tag": "0003_natural_jackal",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1792231054123,
+      "tag": "0004_stormy_cerise",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1792231177745,
+      "tag": "0005_lying_amphibian",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1792233093763,
+      "tag": "0006_special_masked_marvel",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1792239377147,
+      "tag": "0007_concerned_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1792251660908,
+      "tag": "0008_romantic_gargoyle",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1792306965983,
+      "tag": "0009_typical_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1792307079163,
+      "tag": "0010_warm_fixer",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1792312016147,
+      "tag": "0011_lowly_argent",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1792317237143,
+      "tag": "0012_cuddly_captain_universe",
+      "breakpoints": true
+    }
+  ]
+}

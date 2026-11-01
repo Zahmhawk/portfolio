@@ -1,0 +1,8 @@
+import {settingsRevision} from '../lib/settings-revision';import {defaults} from '../lib/defaults';
+import SiteRuntime from './site-runtime';import {db} from '../lib/server';import {appearanceOptions} from '../lib/appearance';
+import SessionPrompt from './session-prompt';import NavigationProgress from './navigation-progress';import {getChatGPTUser} from './chatgpt-auth';
+import AIChat from './ai-chat';
+import type {Metadata} from 'next';import './globals.css';
+export async function generateMetadata():Promise<Metadata>{const row=await db().prepare("SELECT data FROM settings WHERE id='site'").first<any>();const site={...defaults,...JSON.parse(row?.data||'{}')};return {title:site.browserTitle||site.name+' | '+site.role,description:(site.browserDescription||site.intro).slice(0,160),robots:{index:false,follow:false},icons:{icon:site.favicon||'/favicon.svg'}}}
+export const dynamic='force-dynamic';
+export default async function Layout({children}:{children:React.ReactNode}){const user=await getChatGPTUser();const stored=await db().prepare("SELECT data FROM settings WHERE id='site'").first<any>();const appearance={...appearanceOptions(JSON.parse(stored?.data||'{}')),revision:await settingsRevision(stored?.data||'{}')};return <html lang="en" suppressHydrationWarning><body><script dangerouslySetInnerHTML={{__html:`try{var t=localStorage.getItem('portfolio-theme')||'system';var d=t==='dark'||t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.style.colorScheme=d?'dark':'light'}catch(e){}`}}/>{children}<SiteRuntime initial={appearance}/><AIChat/><NavigationProgress/><SessionPrompt signedIn={!!user}/></body></html>}

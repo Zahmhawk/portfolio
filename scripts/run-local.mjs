@@ -1,0 +1,31 @@
+import {hashPassword} from '../lib/password-crypto.mjs';
+import {spawnSync} from 'node:child_process';
+import {randomBytes} from 'node:crypto';
+import {existsSync,readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));process.chdir(root);
+if(Number(process.versions.node.split('.')[0])<24){console.error('Please install Node.js 24 or newer, then run npm install and npm run dev.');process.exit(1)}
+process.env.CLOUDFLARE_CF_FETCH_ENABLED='false';process.env.WRANGLER_SEND_METRICS='false';process.env.WRANGLER_WRITE_LOGS='false';
+const envPath=path.join(root,'.dev.vars');let vars=existsSync(envPath)?readFileSync(envPath,'utf8'):'';if(vars&&!vars.endsWith('\n'))vars+='\n';
+if(!/^CHAT_ENCRYPTION_KEY\s*=/m.test(vars))vars+='\nCHAT_ENCRYPTION_KEY="'+randomBytes(32).toString('base64')+'"\n';
+if(!/^OWNER_BOOTSTRAP_ENABLED\s*=/m.test(vars))vars+='OWNER_BOOTSTRAP_ENABLED=true\n';
+if(!/^LOCAL_AUTH_ENABLED\s*=/m.test(vars))vars+='LOCAL_AUTH_ENABLED=true\n';
+writeFileSync(envPath,vars,{mode:0o600});
+const wrangler=path.join(root,'node_modules/wrangler/bin/wrangler.js');
+function run(args){const result=spawnSync(process.execPath,[wrangler,...args],{cwd:root,env:process.env,stdio:['ignore','pipe','pipe'],encoding:'utf8',maxBuffer:8*1024*1024,timeout:120000});if(result.status!==0){console.error(result.stdout||'');console.error(result.stderr||result.error?.message||'Local database setup failed.');process.exit(result.status||1)}}
+console.log('\nPreparing your local database and private development settings...');
+run(['d1','migrations','apply','DB','--local','--config','wrangler.local.json','--persist-to','.wrangler/state']);
+const seed=JSON.parse(readFileSync('scripts/local-seed.json','utf8'));const quote=v=>"'"+String(v).replaceAll("'","''")+"'";
+const emptyOwner="NOT EXISTS (SELECT 1 FROM accounts WHERE role='owner')";
+let sql=`INSERT OR IGNORE INTO settings(id,data) SELECT 'site',${quote(JSON.stringify(seed.settings))} WHERE ${emptyOwner};\n`;
+for(const e of seed.entries)sql+=`INSERT OR IGNORE INTO content(id,kind,data,status,position,updated_at) SELECT ${[e.id,e.kind,JSON.stringify(e.data),e.status,e.position,new Date().toISOString()].map(quote).join(',')} WHERE ${emptyOwner};\n`;
+sql+=`INSERT OR IGNORE INTO accounts(user_id,email,role) SELECT 'local_seedy','seedy@sites.test','owner' WHERE ${emptyOwner};\n`;
+const ownerHash=hashPassword('12345678');sql+=`INSERT OR IGNORE INTO login_credentials(user_id,username,email,name,password_hash,force_change,verified,created_at) VALUES('local_seedy','niazis11','admin@localhost.invalid','Administrator',${quote(ownerHash)},1,0,${quote(new Date().toISOString())});\n`;
+const tempDir=path.join(root,'.wrangler','local-setup');mkdirSync(tempDir,{recursive:true});const seedPath=path.join(tempDir,'seed.sql');writeFileSync(seedPath,sql);
+run(['d1','execute','DB','--local','--config','wrangler.local.json','--persist-to','.wrangler/state','--file',seedPath]);
+console.log('Local setup ready. Existing edits, files and encryption key are preserved.');
+console.log('Open http://localhost:5173 — Admin: http://localhost:5173/admin');
+console.log('Password login is required. FIRST INSTALL ONLY: NIAZIS11 / 12345678; change it before access. Existing passwords are never reset.');
+console.log('AI features require your own provider key in Settings. Press Ctrl+C to stop.\n');
+const cli=new URL('../node_modules/vinext/dist/cli.js',import.meta.url);process.argv=[process.execPath,fileURLToPath(cli),'dev','--port','5173','--hostname','127.0.0.1'];await import(cli.href);

@@ -1,0 +1,4 @@
+'use client';
+import {useEffect,useState} from 'react';import {ArrowLeft} from 'lucide-react';
+export function safeReturnPath(value:string){try{if(!value.startsWith('/')||value.startsWith('//')||/[\\\u0000-\u0020]/.test(value))return '/';const url=new URL(value,'https://site.invalid');if(url.origin!=='https://site.invalid'||/^\/(?:account|admin|api(?:\/|$)|signin-with-|signout-with-)/.test(url.pathname))return '/';return url.pathname+url.search+url.hash}catch{return '/'}}
+export default function BackToWebsite(){const [href,setHref]=useState('/');useEffect(()=>{try{const saved=sessionStorage.getItem('portfolio-return-path');if(saved){setHref(safeReturnPath(saved));return}const ref=new URL(document.referrer);if(ref.origin===location.origin)setHref(safeReturnPath(ref.pathname+ref.search+ref.hash))}catch{}},[]);return <a className="small-button back-to-website" href={href}><ArrowLeft size={16}/>Back to website · ویب سائٹ پر واپس</a>}

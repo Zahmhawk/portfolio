@@ -1,0 +1,16 @@
+# Optional external integrations; startup creates the actual private .dev.vars.
+# Do not replace an existing CHAT_ENCRYPTION_KEY or previously encrypted keys break.
+# Email/password login and the automatic local setup work without these services.
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
+# Register the callback for your actual origin, e.g.
+# http://localhost:5173/auth/google/callback
+RESEND_API_KEY=""
+AUTH_FROM_EMAIL=""
+# Apple requires an Apple Developer Services ID, enabled primary App ID,
+# signing key and a registered HTTPS domain. Apple does not accept localhost.
+APPLE_CLIENT_ID=""
+APPLE_TEAM_ID=""
+APPLE_KEY_ID=""
+APPLE_PRIVATE_KEY=""
+APPLE_REDIRECT_URI="https://your-domain.example/auth/apple/callback"

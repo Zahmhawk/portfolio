@@ -1,0 +1,1 @@
+export function contentVisible(entry:any,now=Date.now()){if(entry.status!=='published')return false;let d:any;try{d=typeof entry.data==='string'?JSON.parse(entry.data):entry.data}catch{return false}return !d?.publishAt||Number.isFinite(Date.parse(d.publishAt))&&Date.parse(d.publishAt)<=now}

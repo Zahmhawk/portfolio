@@ -1,0 +1,2 @@
+export const placeAliases:Record<string,string>={'Sanghar':'سنگھڑ|سانگھڑ|Sangar','Shahdadpur':'شہدادپور|شہداد پور|Shahdad Pur|Shahzadpur','Tando Adam':'ٹنڈوآدم|ٹنڈو آدم|TandoAdam','Hyderabad':'حیدرآباد','Karachi':'کراچی','Lahore':'لاہور','Islamabad':'اسلام آباد'};
+export function prioritizePlaces<T extends [string,string,string]>(places:T[]){const priority=['Sanghar','Tando Adam','Shahdadpur'];return [...places].sort((a,b)=>{const ai=priority.indexOf(a[1]),bi=priority.indexOf(b[1]);return (ai<0?99:ai)-(bi<0?99:bi)||a[1].localeCompare(b[1])})}
