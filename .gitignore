@@ -63,3 +63,6 @@ next-env.d.ts
 .wrangler/
 .vinext/
 *.tsbuildinfo
+
+# Public variable names only; never put credentials here.
+!.env.example

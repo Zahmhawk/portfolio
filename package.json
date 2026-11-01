@@ -11,7 +11,9 @@
     "db:generate": "drizzle-kit generate",
     "dev:vinext": "vinext dev --port 3001",
     "build:vinext": "vinext build",
-    "start:vinext": "vinext start"
+    "start:vinext": "vinext start",
+    "build:hostinger": "node scripts/build-hostinger.mjs",
+    "start:hostinger": "node .output/server/index.mjs"
   },
   "dependencies": {
     "@base-ui/react": "1.7.0",
@@ -29,8 +31,10 @@
     "input-otp": "1.4.2",
     "libphonenumber-js": "^1.13.15",
     "lucide-react": "1.31.0",
+    "mysql2": "3.24.6",
     "next": "16.3.4",
     "next-themes": "0.4.6",
+    "nitro": "3.0.261029-rc",
     "pdf-lib": "1.17.1",
     "radix-ui": "1.6.7",
     "react": "19.2.6",

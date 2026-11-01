@@ -1,0 +1,9 @@
+﻿# MySQL schema draft
+
+`0001_schema.sql` covers the 27 application tables observed in the consistent local snapshot. It is a **draft**, not production-ready, and has not been executed against a MySQL server. The two D1 metadata tables are intentionally excluded. Existing SQLite migrations are untouched.
+
+Target is MySQL 8.0.13 or newer (not MariaDB), InnoDB, utf8mb4 and `utf8mb4_0900_bin`, a case-sensitive NO PAD collation selected to reduce differences from SQLite BINARY equality, including trailing spaces. Verify the server supports it and test application-specific Unicode comparison behavior; do not assume all SQLite and MySQL comparisons are equivalent.
+
+SQLite TEXT columns participating in indexes become VARCHAR(384); this is an explicit new bound because MySQL cannot create full unbounded TEXT keys. Two-column keys use at most 3072 utf8mb4 bytes. Other TEXT columns become LONGTEXT, with expression defaults where SQLite specified text defaults. SQLite INTEGER becomes signed BIGINT, preserving its 64-bit range. Existing boolean-like integer values remain integers, not MySQL BOOLEAN. Timestamps remain text and are not converted to DATETIME. Primary keys, unique indexes, nullability, defaults and column order were derived from snapshot metadata; the snapshot has no declared foreign keys or triggers. No new foreign keys were invented.
+
+The staging importer checks data types, nullability, defaults, indexed uniqueness, collation and source VARCHAR lengths before transfer, but neither the DDL nor these checks have been validated against a real MySQL instance. Review mysql server version, row sizes, default expressions, index limits, exact comparison behavior, application relationships and all SQL queries before applying. The import currently compares row counts rather than full content hashes. It must not run against production.

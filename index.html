@@ -1,0 +1,89 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Explore Abdul Wahid's work in education, mentoring and research.">
+  <title>Abdul Wahid | Educator, Mentor, Researcher</title>
+  <style>
+    :root { color-scheme: light; --ink: #1c2926; --muted: #56655f; --paper: #f6f5ef; --gold: #aa8651; --line: #d9dfd6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: Arial, sans-serif; }
+    a { color: inherit; }
+    a:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
+    .wrap { width: min(1120px, calc(100% - 48px)); margin: auto; }
+    header { border-bottom: 1px solid var(--line); }
+    .top { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .brand { text-decoration: none; font: 700 20px Georgia, serif; letter-spacing: -.02em; }
+    nav { display: flex; flex-wrap: wrap; gap: 24px; font-size: 14px; }
+    nav a { text-decoration: none; }
+    nav a:hover, .text-link:hover { color: #826335; }
+    .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 70px; align-items: center; padding: 100px 0 92px; }
+    .eyebrow { color: #826335; font-size: 12px; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+    h1, h2, h3, blockquote { font-family: Georgia, serif; font-weight: 400; }
+    h1 { max-width: 700px; margin: 21px 0; font-size: clamp(45px, 6vw, 76px); line-height: 1.05; letter-spacing: -.045em; }
+    .intro { color: var(--muted); font-size: 18px; line-height: 1.7; max-width: 560px; }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 25px; margin-top: 32px; }
+    .button { display: inline-block; background: var(--ink); color: white; padding: 16px 23px; text-decoration: none; font-size: 14px; font-weight: 700; }
+    .button:hover { background: #355148; }
+    .text-link { font-size: 14px; font-weight: 700; text-underline-offset: 5px; }
+    .aside { background: #e5e9df; padding: 42px; border-top: 4px solid var(--gold); }
+    .aside .eyebrow { margin: 0 0 24px; }
+    blockquote { margin: 0; font-size: clamp(26px, 3vw, 37px); line-height: 1.3; letter-spacing: -.02em; }
+    .attribution { margin: 24px 0 0; color: var(--muted); font-size: 13px; }
+    .explore { border-top: 1px solid var(--line); padding: 64px 0 85px; }
+    .section-head { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
+    h2 { font-size: 36px; letter-spacing: -.03em; margin: 10px 0 0; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card { display: flex; flex-direction: column; min-height: 220px; padding: 27px; border: 1px solid var(--line); background: #fbfbf7; text-decoration: none; transition: border-color .2s, transform .2s; }
+    .card:hover { border-color: var(--gold); transform: translateY(-3px); }
+    .number { color: #826335; font-size: 12px; letter-spacing: .12em; }
+    h3 { font-size: 25px; margin: 24px 0 10px; }
+    .card p { color: var(--muted); line-height: 1.6; font-size: 14px; margin: 0 0 22px; }
+    .arrow { margin-top: auto; color: #826335; font-size: 19px; }
+    footer { border-top: 1px solid var(--line); padding: 24px 0; color: var(--muted); font-size: 13px; }
+    .foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    @media (max-width: 760px) { .top { padding: 20px 0; align-items: flex-start; flex-direction: column; } nav { gap: 16px; } .hero { grid-template-columns: 1fr; gap: 42px; padding: 65px 0; } .cards { grid-template-columns: 1fr; } .card { min-height: 180px; } .section-head { align-items: start; flex-direction: column; } }
+    @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+  </style>
+</head>
+<body>
+  <header><div class="wrap top">
+    <a class="brand" data-route="/" href="/">Abdul Wahid<span style="color:var(--gold)">.</span></a>
+    <nav aria-label="Main navigation">
+      <a data-route="/services" href="/services">Services</a>
+      <a data-route="/research" href="/research">Research</a>
+      <a data-route="/publications" href="/publications">Publications</a>
+      <a data-route="/contact" href="/contact">Contact</a>
+    </nav>
+  </div></header>
+  <main>
+    <section class="wrap hero" aria-labelledby="hero-title">
+      <div>
+        <p class="eyebrow">Educator &nbsp; / &nbsp; Mentor &nbsp; / &nbsp; Researcher</p>
+        <h1 id="hero-title">Better educators.<br>Stronger futures.</h1>
+        <p class="intro">I work with educators, school leaders and learners to turn purposeful teaching into lasting growth.</p>
+        <div class="actions"><a class="button" data-route="/services" href="/services">Explore my work &rarr;</a><a class="text-link" data-route="/contact" href="/contact">Get in touch</a></div>
+      </div>
+      <aside class="aside"><p class="eyebrow">A belief that guides my work</p><blockquote>&ldquo;Before a struggling child can own learning, an educator must own the learner.&rdquo;</blockquote><p class="attribution">&mdash; Abdul Wahid</p></aside>
+    </section>
+    <section class="explore"><div class="wrap">
+      <div class="section-head"><div><span class="eyebrow">Explore</span><h2>Learning, in practice.</h2></div><a class="text-link" data-route="/" href="/">Visit the full portfolio &rarr;</a></div>
+      <div class="cards">
+        <a class="card" data-route="/services" href="/services"><span class="number">01 / SERVICES</span><h3>Developing educators</h3><p>Explore teacher development, educational leadership and mentoring.</p><span class="arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="card" data-route="/research" href="/research"><span class="number">02 / RESEARCH</span><h3>Asking better questions</h3><p>Discover research and opportunities to participate in surveys.</p><span class="arrow" aria-hidden="true">&rarr;</span></a>
+        <a class="card" data-route="/publications" href="/publications"><span class="number">03 / PUBLICATIONS</span><h3>Sharing knowledge</h3><p>Browse publications and educational resources.</p><span class="arrow" aria-hidden="true">&rarr;</span></a>
+      </div>
+    </div></section>
+  </main>
+  <footer><div class="wrap foot"><span>Abdul Wahid &middot; Pakistan</span><a data-route="/contact" href="/contact">Contact</a></div></footer>
+  <script>
+    // Opening this file directly still links to the local application server.
+    if (location.protocol === 'file:') {
+      document.querySelectorAll('[data-route]').forEach(function (link) {
+        link.href = 'http://localhost:5173' + link.dataset.route;
+      });
+    }
+  </script>
+</body>
+</html>
