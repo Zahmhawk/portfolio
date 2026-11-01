@@ -2,8 +2,8 @@ import {assistantEnvironment} from './assistant-environment';
 import {identityAnswer} from './assistant-capabilities';
 import {preferences,assistantContext} from './assistant-preferences';
 import {siteIdentityPrompt} from './site-identity';import {systemPrompt} from './ai-providers';
-import {env} from 'cloudflare:workers';import {db} from './server';import {encryptKey,decryptKey} from './chat-crypto';import {discoverModels,providerReply,tryConnections,ProviderError,Provider,AIModel} from './ai-providers';import {normalizeGeminiKey} from './gemini-key';
-export const chatSecret=()=>String((env as any).CHAT_ENCRYPTION_KEY||'');
+import {getRuntimeSetting} from '@/lib/runtime-settings';import {db} from './server';import {encryptKey,decryptKey} from './chat-crypto';import {discoverModels,providerReply,tryConnections,ProviderError,Provider,AIModel} from './ai-providers';import {normalizeGeminiKey} from './gemini-key';
+export const chatSecret=()=>String(getRuntimeSetting('CHAT_ENCRYPTION_KEY')||'');
 export async function connectionRows(userId:string){const rows=(await db().prepare('SELECT * FROM chat_connections WHERE user_id=? ORDER BY position,updated_at').bind(userId).all<any>()).results.map(c=>({...c,models:JSON.parse(c.models)}));const p=await db().prepare('SELECT * FROM chat_profiles WHERE user_id=?').bind(userId).first<any>();if(p?.encrypted_key)rows.unshift({id:'legacy-gemini',user_id:userId,provider:'gemini',label:'Gemini',encrypted_key:p.encrypted_key,model:p.model,voice_model:'',position:-1,legacy:true,models:p.model?[{id:p.model,label:p.model,text:true,voice:false,image:true}]:[]});return {rows,profile:p}}
 export const publicConnection=(c:any)=>({id:c.id,provider:c.provider,label:c.label,model:c.model,voiceModel:c.voice_model,models:c.models,position:c.position,legacy:!!c.legacy,region:c.region||'us-east-1'});
 export const keyFor=(c:any,userId:string)=>decryptKey(c.encrypted_key,c.legacy?userId:userId+'|'+c.provider+'|'+c.id,chatSecret());

@@ -10,6 +10,7 @@ export default defineConfig({
     alias: [
       { find: '@/lib/file-storage', replacement: fileURLToPath(new URL('./lib/file-storage-node.mjs', import.meta.url)) },
       { find: '@/lib/database-provider', replacement: fileURLToPath(new URL('./lib/database-provider-node.mjs', import.meta.url)) },
+      { find: '@/lib/runtime-settings', replacement: fileURLToPath(new URL('./lib/runtime-settings-node.mjs', import.meta.url)) },
     ],
   },
   plugins: [
